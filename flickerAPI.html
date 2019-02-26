@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>untitled document</title>
+        <style>
+          form {
+            width: 100%;
+            margin: auto;
+            margin-top: 50px;
+            text-align: center;
+          }
+
+          input {
+            width: 200px;
+            height: 50px;
+            border: 2px solid green;
+            font-size: 20px;
+          }
+
+          button {
+            background-color: green;
+            border: 5px solid green;
+            color: white;
+            font-size: 20px;
+          }
+
+          div {
+            margin-top: 50px;
+            text-align: center;
+          }
+          .imgBox {
+            width: 150px;
+            height: 150px;
+            margin: 10px;
+            padding: 5px;
+            border: 1px solid lightgrey;
+          }
+        </style>
+    </head>
+    <body>
+        <form action="http://www.flickr.com/search/">
+          <label for="search" style="display: block; font-size: 40px; text-align: center; font-family: Arial; padding-bottom: 20px;"> Search Stuff </label>
+          <input id="search" type="text" name="q">
+          <button id="response" type="submit">Search</button>
+        </form>
+        <div id="images"></div>
+       <script  src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s=" crossorigin="anonymous"></script>
+       <script type="text/javascript">   
+           $(document).ready(()=>{
+            $("#response").on("click",(event)=>{   
+
+              var  flickrAPI, flickrOptions, tagName; 
+              tagName = $("#search"); //assigning the tags property with te input value 
+              flickrAPI = "http://api.flickr.com/services/feeds/photos_public.gne"; 
+              
+
+              $("#images").empty(); //clearing previous photos
+
+              //success function
+              let renderPhotos = (data)=>{
+                $.each(data.items, (i, Img)=>{
+                  $('<a href="' + Img.link +'"target=_blank></a>')
+                  .append($('<img src="' + Img.media.m + '">')
+                  .addClass("imgBox")).appendTo( "#images" );                  
+                });
+
+                if($("#images:empty").length){
+                  $("#images").html('Oops! No match was found for ' +'"' + tagName.val() + '." Please try broadening your search.');
+                }
+              }
+
+              event.preventDefault();
+              
+
+              $.ajax({
+                url: flickrAPI,
+                data: {format: "json", tagmode: "any", tags: tagName.val()},     //could use data: "format=json",
+                jsonp: "jsoncallback",  //jsonp: "callback" for checking error 
+                dataType: "jsonp",
+                success: renderPhotos,
+                //timeout: 5000,
+                error: function( jqXHR, Status, errorThrown) {
+                  alert("Request fail: " + Status);
+                  $("#images").html("Request fail: " + "<b>" + Status + "</b>" );
+                  console.log(errorThrown);
+                }
+              });
+
+
+
+
+              
+                 
+             
+
+               
+            });
+          });
+       </script>
+    </body>
+</html>
